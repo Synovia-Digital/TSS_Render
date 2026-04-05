@@ -1,12 +1,12 @@
 FROM python:3.12-slim-bookworm
 
 # ── Install Microsoft ODBC Driver 18 for SQL Server ──────────
-# The prod.list expects key at /usr/share/keyrings/microsoft-prod.gpg
+# Ref: https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         curl gnupg2 apt-transport-https ca-certificates \
     && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-        | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
+        | tee /etc/apt/trusted.gpg.d/microsoft.asc \
     && curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list \
         | tee /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
@@ -17,7 +17,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Verify driver registered
+# Verify driver is registered
 RUN odbcinst -q -d
 
 # ── Python dependencies ──────────────────────────────────────

@@ -21,6 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="live\TSS_Sync_Portal_Dashboard_v1_3.py" />
     <Compile Include="TSS_Render.py" />
   </ItemGroup>
   <ItemGroup>
