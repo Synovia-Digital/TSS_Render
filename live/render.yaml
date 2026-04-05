@@ -1,0 +1,18 @@
+# render.yaml -- Render Blueprint
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: tss-sync-portal
+    runtime: docker
+    plan: starter
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: DB_SERVER
+        sync: false          # set manually in Render dashboard
+      - key: DB_NAME
+        value: Fusion_TSS_PRD
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
