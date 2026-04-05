@@ -1,20 +1,26 @@
-FROM python:3.12-slim
+FROM python:3.12-slim-bookworm
 
-# ── Install Microsoft ODBC Driver 18 for SQL Server ──
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# ── Install Microsoft ODBC Driver 18 for SQL Server ──────────
+# Ref: https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
         curl gnupg2 apt-transport-https ca-certificates \
-    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | \
-        gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > \
-        /etc/apt/sources.list.d/mssql-release.list \
+    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+        | tee /etc/apt/trusted.gpg.d/microsoft.asc \
+    && curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list \
+        | tee /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends \
-        msodbcsql18 unixodbc-dev \
-    && apt-get purge -y curl gnupg2 apt-transport-https \
-    && apt-get autoremove -y \
+        msodbcsql18 \
+        unixodbc \
+        unixodbc-dev \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# ── App ──
+# Verify driver is registered
+RUN odbcinst -q -d
+
+# ── Python dependencies ──────────────────────────────────────
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
